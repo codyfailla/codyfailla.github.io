@@ -190,6 +190,13 @@
       margin-top: 6px;
     }
 
+    .below-note {
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 2px;
+    }
+
     /* Slightly larger on bigger screens */
     @media (min-width: 740px) {
       :root { --cell: 40px; --btn: 34px; }
@@ -204,6 +211,7 @@
       <p>
         Slide rows and columns by one square using the arrows.
         You win when each 3×3 corner block is a single color.
+        Each new game starts with exactly nine of each color.
       </p>
     </header>
 
@@ -212,6 +220,7 @@
         <div id="status" class="status">Make your first move.</div>
         <div class="controls">
           <button id="newGameBtn" type="button">New game</button>
+          <button id="reshuffleBtn" type="button" title="Shuffles the current board while keeping color counts">Reshuffle</button>
           <button id="solveHintBtn" type="button" title="Highlights corners that are already uniform">Check corners</button>
         </div>
       </div>
@@ -232,6 +241,8 @@
         Tip: corners are (top-left, top-right, bottom-left, bottom-right), each 3×3.
       </div>
     </section>
+
+    <div class="below-note">Cole, your move.</div>
   </div>
 
   <script>
@@ -247,6 +258,7 @@
       const statusEl = document.getElementById("status");
       const movesEl = document.getElementById("moves");
       const newGameBtn = document.getElementById("newGameBtn");
+      const reshuffleBtn = document.getElementById("reshuffleBtn");
       const solveHintBtn = document.getElementById("solveHintBtn");
 
       function newGame() {
@@ -265,6 +277,22 @@
         won = false;
         render();
         updateStatus();
+      }
+
+      function reshuffleGrid() {
+        if (won) return;
+
+        const bag = grid.flat();
+        for (let i = bag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
+        grid = Array.from({ length: SIZE }, (_, r) =>
+          bag.slice(r * SIZE, r * SIZE + SIZE)
+        );
+        moves = 0;
+        render();
+        updateStatus("Board reshuffled.");
       }
 
       function updateStatus(message) {
@@ -441,6 +469,10 @@
       newGameBtn.addEventListener("click", () => {
         newGame();
         updateStatus("New game started.");
+      });
+
+      reshuffleBtn.addEventListener("click", () => {
+        reshuffleGrid();
       });
 
       solveHintBtn.addEventListener("click", () => {
