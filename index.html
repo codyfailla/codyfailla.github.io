@@ -1,29 +1,452 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>My Website</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to my website</title>
+  <style>
+    :root {
+      --cell: 34px;
+      --gap: 4px;
+      --btn: 30px;
+      --radius: 10px;
 
-  <!-- Responsive layout on all devices -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+      --red: #ef4444;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --yellow: #facc15;
 
-  <!-- Basic security hardening for a static page -->
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'none';
-    object-src 'none';
-    base-uri 'none';
-    frame-ancestors 'none';
-  ">
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.7);
+    }
 
-  <!-- Privacy and modern browser hints -->
-  <meta name="referrer" content="no-referrer">
-  <meta name="color-scheme" content="light dark">
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(59,130,246,0.25), transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(34,197,94,0.18), transparent 55%),
+                  radial-gradient(900px 600px at 50% 100%, rgba(250,204,21,0.12), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 14px;
+    }
+
+    .wrap {
+      width: min(920px, 100%);
+      display: grid;
+      gap: 14px;
+    }
+
+    header {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .game-card {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(10px);
+      display: grid;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .status {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .status.win {
+      color: #86efac;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.10);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: transform 0.05s ease, background 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover { background: rgba(255,255,255,0.14); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Board layout: top arrows row, then 9 rows each with left/right arrows, then bottom arrows row */
+    .board {
+      width: fit-content;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: var(--btn) repeat(9, var(--cell)) var(--btn);
+      grid-template-rows: var(--btn) repeat(9, var(--cell)) var(--btn);
+      gap: var(--gap);
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .arrow {
+      width: var(--btn);
+      height: var(--btn);
+      border-radius: 12px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .cell {
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .c-r { background: var(--red); }
+    .c-g { background: var(--green); }
+    .c-b { background: var(--blue); }
+    .c-y { background: var(--yellow); }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+      justify-content: space-between;
+    }
+    .legend .chips {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .footer-note {
+      color: rgba(255,255,255,0.55);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Slightly larger on bigger screens */
+    @media (min-width: 740px) {
+      :root { --cell: 40px; --btn: 34px; }
+    }
+  </style>
 </head>
+
 <body>
-  <main>
-    <h1>hello, this is my website</h1>
-    <p>fuck you, cole</p>
-  </main>
+  <div class="wrap">
+    <header>
+      <h1>Welcome to my website</h1>
+      <p>
+        Slide rows and columns by one square using the arrows.
+        You win when each 3×3 corner block is a single color.
+      </p>
+    </header>
+
+    <section class="game-card" aria-label="Color Slide Puzzle">
+      <div class="toolbar">
+        <div id="status" class="status">Make your first move.</div>
+        <div class="controls">
+          <button id="newGameBtn" type="button">New game</button>
+          <button id="solveHintBtn" type="button" title="Highlights corners that are already uniform">Check corners</button>
+        </div>
+      </div>
+
+      <div id="board" class="board" aria-label="9 by 9 board"></div>
+
+      <div class="legend">
+        <div class="chips" aria-label="Color legend">
+          <span class="chip"><span class="dot" style="background: var(--red)"></span>Red</span>
+          <span class="chip"><span class="dot" style="background: var(--green)"></span>Green</span>
+          <span class="chip"><span class="dot" style="background: var(--blue)"></span>Blue</span> 
+          <span class="chip"><span class="dot" style="background: var(--yellow)"></span>Yellow</span>
+        </div>
+        <div id="moves" aria-label="Moves counter">Moves: 0</div>
+      </div>
+
+      <div class="footer-note">
+        Tip: corners are (top-left, top-right, bottom-left, bottom-right), each 3×3.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      const SIZE = 9;
+      const COLORS = ["r", "g", "b", "y"]; // red, green, blue, yellow
+
+      let grid = [];
+      let moves = 0;
+      let won = false;
+
+      const boardEl = document.getElementById("board");
+      const statusEl = document.getElementById("status");
+      const movesEl = document.getElementById("moves");
+      const newGameBtn = document.getElementById("newGameBtn");
+      const solveHintBtn = document.getElementById("solveHintBtn");
+
+      function randColor() {
+        return COLORS[Math.floor(Math.random() * COLORS.length)];
+      }
+
+      function newGame() {
+        grid = Array.from({ length: SIZE }, () =>
+          Array.from({ length: SIZE }, () => randColor())
+        );
+        moves = 0;
+        won = false;
+        render();
+        updateStatus();
+      }
+
+      function updateStatus(message) {
+        if (won) {
+          statusEl.textContent = `You win in ${moves} moves! 🎉`;
+          statusEl.classList.add("win");
+          return;
+        }
+        statusEl.classList.remove("win");
+        statusEl.textContent = message || "Slide rows/columns to make all four 3×3 corners uniform.";
+      }
+
+      function setMoves() {
+        movesEl.textContent = `Moves: ${moves}`;
+      }
+
+      // Shift row left/right by 1 with wrap
+      function shiftRow(rowIndex, dir) {
+        if (won) return;
+
+        const row = grid[rowIndex].slice();
+        if (dir === "left") {
+          row.push(row.shift()); // first -> end? (Actually shift removes first; pushing it to end shifts LEFT.)
+        } else if (dir === "right") {
+          row.unshift(row.pop());
+        }
+        grid[rowIndex] = row;
+
+        moves++;
+        render();
+        postMoveUpdate(`Shifted row ${rowIndex + 1} ${dir}.`);
+      }
+
+      // Shift column up/down by 1 with wrap
+      function shiftCol(colIndex, dir) {
+        if (won) return;
+
+        const col = grid.map(r => r[colIndex]);
+        if (dir === "up") {
+          col.push(col.shift());
+        } else if (dir === "down") {
+          col.unshift(col.pop());
+        }
+        for (let r = 0; r < SIZE; r++) grid[r][colIndex] = col[r];
+
+        moves++;
+        render();
+        postMoveUpdate(`Shifted column ${colIndex + 1} ${dir}.`);
+      }
+
+      function isUniformBlock(r0, c0, blockSize = 3) {
+        const first = grid[r0][c0];
+        for (let r = r0; r < r0 + blockSize; r++) {
+          for (let c = c0; c < c0 + blockSize; c++) {
+            if (grid[r][c] !== first) return false;
+          }
+        }
+        return true;
+      }
+
+      function checkWin() {
+        // Win condition: each corner 3x3 is uniform (can be different colors per corner)
+        const tl = isUniformBlock(0, 0);
+        const tr = isUniformBlock(0, SIZE - 3);
+        const bl = isUniformBlock(SIZE - 3, 0);
+        const br = isUniformBlock(SIZE - 3, SIZE - 3);
+        return tl && tr && bl && br;
+      }
+
+      function postMoveUpdate(msg) {
+        setMoves();
+        won = checkWin();
+        updateStatus(won ? null : msg);
+      }
+
+      function cellClass(code) {
+        return `cell c-${code}`;
+      }
+
+      function clearBoard() {
+        while (boardEl.firstChild) boardEl.removeChild(boardEl.firstChild);
+      }
+
+      function render() {
+        clearBoard();
+
+        // Helper to position items in the CSS grid
+        function place(el, row, col) {
+          el.style.gridRow = String(row);
+          el.style.gridColumn = String(col);
+          return el;
+        }
+
+        // Corners (0,0), (0,8), (8,0), (8,8) are at grid positions:
+        // board rows: 1..11, cols: 1..11 (because arrows occupy outer ring)
+        // inner cells start at row 2 col 2
+
+        // Top arrows (down shift) for each column
+        for (let c = 0; c < SIZE; c++) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "arrow";
+          btn.textContent = "▼";
+          btn.title = `Shift column ${c + 1} down`;
+          btn.addEventListener("click", () => shiftCol(c, "down"));
+          place(btn, 1, c + 2);
+          boardEl.appendChild(btn);
+        }
+
+        // Bottom arrows (up shift) for each column
+        for (let c = 0; c < SIZE; c++) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "arrow";
+          btn.textContent = "▲";
+          btn.title = `Shift column ${c + 1} up`;
+          btn.addEventListener("click", () => shiftCol(c, "up"));
+          place(btn, SIZE + 2, c + 2);
+          boardEl.appendChild(btn);
+        }
+
+        // Left/right arrows for rows + cells
+        for (let r = 0; r < SIZE; r++) {
+          // Left arrow (shift right? Actually left-side button should move row LEFT or RIGHT?)
+          // You asked: buttons on outside of each row/col that slide in the respective direction.
+          // So left button slides row LEFT, right button slides row RIGHT.
+          const leftBtn = document.createElement("button");
+          leftBtn.type = "button";
+          leftBtn.className = "arrow";
+          leftBtn.textContent = "◀";
+          leftBtn.title = `Shift row ${r + 1} left`;
+          leftBtn.addEventListener("click", () => shiftRow(r, "left"));
+          place(leftBtn, r + 2, 1);
+          boardEl.appendChild(leftBtn);
+
+          const rightBtn = document.createElement("button");
+          rightBtn.type = "button";
+          rightBtn.className = "arrow";
+          rightBtn.textContent = "▶";
+          rightBtn.title = `Shift row ${r + 1} right`;
+          rightBtn.addEventListener("click", () => shiftRow(r, "right"));
+          place(rightBtn, r + 2, SIZE + 2);
+          boardEl.appendChild(rightBtn);
+
+          // Cells
+          for (let c = 0; c < SIZE; c++) {
+            const cell = document.createElement("div");
+            cell.className = cellClass(grid[r][c]);
+            cell.setAttribute("aria-label", `Row ${r + 1}, Column ${c + 1}`);
+            place(cell, r + 2, c + 2);
+            boardEl.appendChild(cell);
+          }
+        }
+
+        setMoves();
+        if (checkWin()) {
+          won = true;
+          updateStatus();
+        }
+      }
+
+      function cornerSummary() {
+        const corners = [
+          { name: "Top-left", ok: isUniformBlock(0, 0) },
+          { name: "Top-right", ok: isUniformBlock(0, SIZE - 3) },
+          { name: "Bottom-left", ok: isUniformBlock(SIZE - 3, 0) },
+          { name: "Bottom-right", ok: isUniformBlock(SIZE - 3, SIZE - 3) }
+        ];
+        const okCount = corners.filter(c => c.ok).length;
+        const details = corners.map(c => `${c.name}: ${c.ok ? "✓" : "✗"}`).join("   ");
+        updateStatus(`${details}  —  ${okCount}/4 corners uniform.`);
+      }
+
+      newGameBtn.addEventListener("click", () => {
+        newGame();
+        updateStatus("New game started.");
+      });
+
+      solveHintBtn.addEventListener("click", () => {
+        if (won) return;
+        cornerSummary();
+      });
+
+      // Start
+      newGame();
+    })();
+  </script>
 </body>
 </html>
