@@ -114,13 +114,13 @@
     button:active { transform: translateY(1px); }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Board layout: top arrows row, then 9 rows each with left/right arrows, then bottom arrows row */
+    /* Board layout: top arrows row, then 6 rows each with left/right arrows, then bottom arrows row */
     .board {
       width: fit-content;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: var(--btn) repeat(9, var(--cell)) var(--btn);
-      grid-template-rows: var(--btn) repeat(9, var(--cell)) var(--btn);
+      grid-template-columns: var(--btn) repeat(6, var(--cell)) var(--btn);
+      grid-template-rows: var(--btn) repeat(6, var(--cell)) var(--btn);
       gap: var(--gap);
       padding: 10px;
       border-radius: 16px;
@@ -216,7 +216,7 @@
         </div>
       </div>
 
-      <div id="board" class="board" aria-label="9 by 9 board"></div>
+      <div id="board" class="board" aria-label="6 by 6 board"></div>
 
       <div class="legend">
         <div class="chips" aria-label="Color legend">
@@ -236,7 +236,7 @@
 
   <script>
     (function () {
-      const SIZE = 9;
+      const SIZE = 6;
       const COLORS = ["r", "g", "b", "y"]; // red, green, blue, yellow
 
       let grid = [];
