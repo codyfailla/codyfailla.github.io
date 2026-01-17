@@ -249,13 +249,17 @@
       const newGameBtn = document.getElementById("newGameBtn");
       const solveHintBtn = document.getElementById("solveHintBtn");
 
-      function randColor() {
-        return COLORS[Math.floor(Math.random() * COLORS.length)];
-      }
-
       function newGame() {
-        grid = Array.from({ length: SIZE }, () =>
-          Array.from({ length: SIZE }, () => randColor())
+        const bag = [];
+        for (const color of COLORS) {
+          for (let i = 0; i < 9; i++) bag.push(color);
+        }
+        for (let i = bag.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
+        grid = Array.from({ length: SIZE }, (_, r) =>
+          bag.slice(r * SIZE, r * SIZE + SIZE)
         );
         moves = 0;
         won = false;
@@ -355,7 +359,7 @@
         }
 
         // Corners (0,0), (0,8), (8,0), (8,8) are at grid positions:
-        // board rows: 1..11, cols: 1..11 (because arrows occupy outer ring)
+        // board rows: 1..8, cols: 1..8 (because arrows occupy outer ring)
         // inner cells start at row 2 col 2
 
         // Top arrows (down shift) for each column
