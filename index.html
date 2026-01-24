@@ -414,26 +414,25 @@
           boardEl.appendChild(btn);
         }
 
-        // Left/right arrows for rows + cells
+        // Left/right arrows for rows + cells (arrows point toward the board = push)
         for (let r = 0; r < SIZE; r++) {
-          // Left arrow (shift right? Actually left-side button should move row LEFT or RIGHT?)
-          // You asked: buttons on outside of each row/col that slide in the respective direction.
-          // So left button slides row LEFT, right button slides row RIGHT.
+          // Left-side button pushes row to the right.
           const leftBtn = document.createElement("button");
           leftBtn.type = "button";
           leftBtn.className = "arrow";
-          leftBtn.textContent = "◀";
-          leftBtn.title = `Shift row ${r + 1} left`;
-          leftBtn.addEventListener("click", () => shiftRow(r, "left"));
+          leftBtn.textContent = "▶";
+          leftBtn.title = `Shift row ${r + 1} right`;
+          leftBtn.addEventListener("click", () => shiftRow(r, "right"));
           place(leftBtn, r + 2, 1);
           boardEl.appendChild(leftBtn);
 
+          // Right-side button pushes row to the left.
           const rightBtn = document.createElement("button");
           rightBtn.type = "button";
           rightBtn.className = "arrow";
-          rightBtn.textContent = "▶";
-          rightBtn.title = `Shift row ${r + 1} right`;
-          rightBtn.addEventListener("click", () => shiftRow(r, "right"));
+          rightBtn.textContent = "◀";
+          rightBtn.title = `Shift row ${r + 1} left`;
+          rightBtn.addEventListener("click", () => shiftRow(r, "left"));
           place(rightBtn, r + 2, SIZE + 2);
           boardEl.appendChild(rightBtn);
 
